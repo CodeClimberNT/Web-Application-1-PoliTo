@@ -1,0 +1,14 @@
+{
+  "name": "lab01",
+  "version": "0.0.1",
+  "description": "",
+  "main": "filmLib.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick",
+  "license": "ISC",
+  "dependencies": {
+    "dayjs": "^1.11.10"
+  }
+}
