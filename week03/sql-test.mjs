@@ -6,11 +6,11 @@ const db = new sqlite.Database('questions.sqlite', (err) => {
 
 const sql = "SELECT * FROM answer";
 
-db.all(sql, (err, rows) => { 
+db.all(sql, (err, rows) => {
   if(err) throw err;
-
-  for(let row of rows)
+  for (let row of rows)
     console.log(row);
 });
+
 
 db.close
