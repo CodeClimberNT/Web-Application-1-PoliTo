@@ -1,53 +1,55 @@
 import dayjs from "dayjs";
 
-function Film(
-  id,
-  title,
-  favorites = false,
-  date = null,
-  rating = 0,
-  userid = 1
-) {
-  this.id = id;
-  this.title = title;
-  this.favorites = favorites;
-  this.date = dayjs(date);
-  this.rating = rating;
-  this.userid = userid;
+class Film {
+  constructor(
+    id,
+    title,
+    favorites = false,
+    date = null,
+    rating = 0,
+    userid = 1
+  ) {
+    this.id = id;
+    this.title = title;
+    this.favorites = favorites;
+    this.date = dayjs(date);
+    this.rating = rating;
+    this.userid = userid;
 
-  this.toString = () => {
-    return `\nId: ${this.id}, Title: ${this.title}, Favorite: ${
-      this.favorites
-    }, Watch date: ${this.date.format("MMMM D, YYYY")}, Score: ${
-      this.rating
-    }, User: ${this.userid}`;
-  };
+    this.toString = () => {
+      return `\nId: ${this.id}, Title: ${this.title}, Favorite: ${
+        this.favorites
+      }, Watch date: ${this.date.format("MMMM D, YYYY")}, Score: ${
+        this.rating
+      }, User: ${this.userid}`;
+    };
+  }
 }
 
-function FilmLibrary() {
-  this.films = [];
+class FilmLibrary {
+  constructor() {
+    this.films = [];
+  }
+  addNewFilm = (film) => this.films.push(film);
 
-  this.addNewFilm = (film) => this.films.push(film);
+  sortByDate = () =>
+    [...this.films].sort((a, b) => (a.date.isAfter(b.date) ? 1 : -1)).reverse();
 
-  this.sortByDate = () => [...this.films].sort((a, b)=> a.date.isAfter(b.date) ? 1 : -1).reverse();
+  sortByRate = () => [...this.films].sort((a, b) => b.rate - a.rate);
 
-  this.deleteFilm = (id) => {
-    const toRemove = this.films.find(film => film.id === id)
+  deleteFilm = (id) => {
+    const toRemove = this.films.find((film) => film.id === id);
     const index = this.films.indexOf(toRemove);
-    if(index > -1)
-      this.films.splice(index, 1);
-  
-  }
+    if (index > -1) this.films.splice(index, 1);
+  };
 
-  this.resetWatchedFilms = () => {
-    for(const film of this.films)
-      film.date = dayjs(null);
-    
-  }
+  resetWatchedFilms = () => {
+    for (const film of this.films) film.date = dayjs(null);
+  };
 
-  this.getRated = () => [...this.films].filter((film)=> film.rating > 0)
+  getRated = () => [...this.films].filter((film) => film.rating > 0);
 
-  this.toString = () => this.films.toString();
+  toString = () => this.films.toString();
 }
 
 /*
@@ -71,11 +73,14 @@ filmLibrary.addNewFilm(film3);
 filmLibrary.addNewFilm(film4);
 filmLibrary.addNewFilm(film5);
 
-console.log("\n\nFilm Library: ");
+console.log("\n\n***** List of films *****");
 console.log("" + filmLibrary);
 
-console.log("\n\nFilm Library sorted by Date: ");
+console.log("\n\n***** List of films sorted by Date*****");
 console.log("" + filmLibrary.sortByDate());
+
+console.log("\n\n***** List of films sorted by Rating*****");
+console.log("" + filmLibrary.sortByRate());
 
 /*
 console.log("\n\nFilm Library without id 2: ");
@@ -89,5 +94,5 @@ filmLibrary.resetWatchedFilms();
 console.log("" + filmLibrary);
 */
 
-console.log("\n\nFilms filtered, only the rated ones: ");
+console.log("\n\n***** Films filtered, only the rated ones *****");
 console.log("" + filmLibrary.getRated());
