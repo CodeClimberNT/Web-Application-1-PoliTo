@@ -23,15 +23,15 @@ function Film(
 
   this.toString = () => {
     return `\nId: ${this.id}, Title: ${this.title}, Favorite: ${
-      this.favorites == 1 ? 'yes' : 'no'
+      this.favorites == 1 ? "yes" : "no"
     }, Watch date: ${
-      this.watchDate ? this.watchDate.format("MMMM D, YYYY") : 'tbw'
+      this.watchDate ? this.watchDate.format("MMMM D, YYYY") : "tbw"
     }, Score: ${this.rating}, User: ${this.userId}`;
   };
 }
 
 function FilmLibrary() {
-  this.films = [];
+  // this.films = [];
 
   /*
   this.addNewFilm = (film) => {
@@ -67,26 +67,163 @@ function FilmLibrary() {
     return newArray;
   };
 */
-  this.retrieveDB = () => {
+  this.retrieveAllFilms = () => {
     return new Promise((resolve, reject) => {
       const sql = "SELECT * FROM films";
       db.all(sql, (err, rows) => {
-        if (err) reject(err);
-        else {
-          const films = rows.map(
-            (row) =>
-              new Film(
-                row.id,
-                row.title,
-                row.isFavorite,
-                row.watchDate,
-                row.rating,
-                row.userId
-              )
-          );
-          this.films = [...films];
-          resolve(films);
+        if (err) {
+          return reject(err);
         }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
+      });
+    });
+  };
+
+  this.retrieveFavFilms = () => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM films WHERE isFavorite=1";
+      db.all(sql, (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
+      });
+    });
+  };
+
+  this.retrieveWatchedToday = (debug = 0) => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM films WHERE watchDate=?";
+
+      // for debug purpose, the actual date is in first line
+      const when = !debug
+        ? dayjs().format("YYYY-MM-DD")
+        : dayjs("2024-03-10").format("YYYY-MM-DD");
+
+      db.all(sql, [when], (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
+      });
+    });
+  };
+
+  this.retrieveWatchedBeforeDate = (date) => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM films WHERE watchDate<?";
+
+      const when = dayjs(date).format("YYYY-MM-DD");
+
+      db.all(sql, [when], (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
+      });
+    });
+  };
+
+  this.retrieveWithRatingOrBetter = (rating) => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM films WHERE rating>=?";
+
+      db.all(sql, [rating], (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
+      });
+    });
+  };
+
+  this.retrieveFromTitle = (strSearch) => {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM films WHERE title LIKE ?";
+
+      db.all(sql, [`%${strSearch}%`], (err, rows) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const films = rows.map(
+          (row) =>
+            new Film(
+              row.id,
+              row.title,
+              row.isFavorite,
+              row.watchDate,
+              row.rating,
+              row.userId
+            )
+        );
+
+        return resolve(films);
       });
     });
   };
@@ -96,8 +233,42 @@ function FilmLibrary() {
 
 async function main() {
   const filmLibrary = new FilmLibrary();
-  const films = await filmLibrary.retrieveDB();
-  console.log("" + films);
+  console.log(
+    `****| All Films |****"${await filmLibrary.retrieveAllFilms()}\n`
+  );
+
+  console.log(
+    `****| Favorite Films |****${await filmLibrary.retrieveFavFilms()}\n`
+  );
+
+  const watchedToday = await filmLibrary.retrieveWatchedToday();
+  console.log(
+    `****| Watched Today |**** ${
+      watchedToday.length > 0 ? watchedToday : "\nNothing Watched Today"
+    }\n`
+  );
+
+  const when = "2024-03-20";
+  console.log(
+    `****| Watched Before ${when} |****${await filmLibrary.retrieveWatchedBeforeDate(
+      when
+    )}\n`
+  );
+
+  const rating = 3;
+
+  console.log(
+    `****| With Rating >= of ${rating} |****${await filmLibrary.retrieveWithRatingOrBetter(
+      rating
+    )}\n`
+  );
+
+  const searchTerm = "21";
+  console.log(
+    `****| Have ${searchTerm} in the title |****${await filmLibrary.retrieveFromTitle(
+      searchTerm
+    )}`
+  );
 }
 
 main();
