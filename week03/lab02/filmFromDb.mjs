@@ -31,42 +31,6 @@ function Film(
 }
 
 function FilmLibrary() {
-  // this.films = [];
-
-  /*
-  this.addNewFilm = (film) => {
-    if (!this.list.some((f) => f.id == film.id)) this.list.push(film);
-    else throw new Error("Duplicate id");
-  };
-
-  this.deleteFilm = (id) => {
-    const newList = this.list.filter(function (film, index, arr) {
-      return film.id !== id;
-    });
-    this.list = newList;
-  };
-
-  this.resetWatchedFilms = () => {
-    this.list.forEach((film) => delete film.watchDate);
-  };
-
-  this.getRated = () => {
-    const newList = this.list.filter(function (film, index, arr) {
-      return film.rating > 0;
-    });
-    return newList;
-  };
-
-  this.sortByDate = () => {
-    const newArray = [...this.list];
-    newArray.sort((d1, d2) => {
-      if (!d1.watchDate) return 1; // null/empty watchDate is the lower value
-      if (!d2.watchDate) return -1;
-      return d1.watchDate.diff(d2.watchDate, "day");
-    });
-    return newArray;
-  };
-*/
   this.retrieveAllFilms = () => {
     return new Promise((resolve, reject) => {
       const sql = "SELECT * FROM films";
@@ -228,11 +192,44 @@ function FilmLibrary() {
     });
   };
 
+  this.addFilm = (film) => {
+    return new Promise((resolve, reject) => {
+      if (!film) {
+        return reject("Argument is not a Film object!");
+      }
+      const sql =
+        "INSERT INTO films (title, isFavorite, watchDate, rating, userId) VALUES (?, ?, ?, ?, ?)";
+
+      db.run(
+        sql,
+        [
+          film.title,
+          film.isFavorite ? 1 : 0,
+          film.watchDate,
+          film.rating,
+          film.userId,
+        ],
+        function (err) {
+          if (err) {
+            console.log("Error Inserting Film");
+            return reject(err);
+          }
+
+          console.log("Operation Successful");
+          return resolve(this.lastID);
+        }
+      );
+    });
+  };
+
   this.toString = () => this.films.toString();
 }
 
 async function main() {
   const filmLibrary = new FilmLibrary();
+
+  //! FIRST PART OF THE LAB
+
   console.log(
     `****| All Films |****"${await filmLibrary.retrieveAllFilms()}\n`
   );
@@ -263,11 +260,26 @@ async function main() {
     )}\n`
   );
 
-  const searchTerm = "21";
+  const searchTerm = "Imit";
   console.log(
     `****| Have ${searchTerm} in the title |****${await filmLibrary.retrieveFromTitle(
       searchTerm
-    )}`
+    )}\n`
+  );
+
+  console.log("Second part of lab");
+  //! SECOND PART OF THE LAB
+  const imitGame = new Film(6, "Imitation Game", true, "2024-03-25", 5, 1);
+  console.log(imitGame.toString());
+  console.log(
+    await filmLibrary
+      .addFilm(imitGame)
+      .then((id) => {
+        console.log(`Film inserted with id: ${id}`);
+      })
+      .catch((err) => {
+        console.error(`Error inserting film: ${err}`);
+      })
   );
 }
 
