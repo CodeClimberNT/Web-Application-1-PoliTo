@@ -205,20 +205,39 @@ function FilmLibrary() {
         [
           film.title,
           film.isFavorite ? 1 : 0,
-          film.watchDate,
+          film.watchDate.format("YYYY-MM-DD"),
           film.rating,
           film.userId,
         ],
         function (err) {
           if (err) {
-            console.log("Error Inserting Film");
-            return reject(err);
+            return reject(`Error Inserting Film: ${err}`);
           }
 
-          console.log("Operation Successful");
-          return resolve(this.lastID);
+          return resolve(
+            `Successfully added film "${film.title}" with id: ${this.lastID}`
+          );
         }
       );
+    });
+  };
+
+  this.removeFilmById = (id) => {
+    return new Promise((resolve, reject) => {
+      if (typeof id !== "string" && typeof id !== "number") {
+        return reject("Argument is not a Film object!");
+      }
+      const sql = "DELETE FROM films WHERE id = ?";
+
+      db.run(sql, [id], function (err) {
+        if (err) {
+          return reject(`Error with id: ${id}`);
+        }
+        if (this.changes === 0) {
+          return reject(`No film found with id: ${id}`);
+        }
+        return resolve(`Successfully removed film with id ${id}`);
+      });
     });
   };
 
@@ -229,7 +248,9 @@ async function main() {
   const filmLibrary = new FilmLibrary();
 
   //! FIRST PART OF THE LAB
-
+  console.log(
+    "====================== First part of lab ======================"
+  );
   console.log(
     `****| All Films |****"${await filmLibrary.retrieveAllFilms()}\n`
   );
@@ -267,20 +288,19 @@ async function main() {
     )}\n`
   );
 
-  console.log("Second part of lab");
-  //! SECOND PART OF THE LAB
-  const imitGame = new Film(6, "Imitation Game", true, "2024-03-25", 5, 1);
-  console.log(imitGame.toString());
   console.log(
-    await filmLibrary
-      .addFilm(imitGame)
-      .then((id) => {
-        console.log(`Film inserted with id: ${id}`);
-      })
-      .catch((err) => {
-        console.error(`Error inserting film: ${err}`);
-      })
+    "====================== Second part of lab ======================"
   );
+  //! SECOND PART OF THE LAB
+
+  const imitGame = new Film(6, "Imitation Game", true, "2024-03-25", 5, 1);
+
+
+  // filmLibrary.addFilm(imitGame).then(console.log).catch(console.log);
+	
+	//!ATTENTION REMOVE FILM BY ID -> CANNOT BE UNDONE!
+  // filmLibrary.removeFilmById(14).then(console.log).catch(console.log);
+
 }
 
 main();
