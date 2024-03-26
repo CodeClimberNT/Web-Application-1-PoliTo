@@ -301,6 +301,7 @@ async function main() {
 	//!ATTENTION REMOVE FILM BY ID -> CANNOT BE UNDONE!
   // filmLibrary.removeFilmById(14).then(console.log).catch(console.log);
 
+  db.close();
 }
 
 main();
