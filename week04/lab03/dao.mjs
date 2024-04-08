@@ -147,7 +147,6 @@ export const listNotWatched = () => {
   });
 };
 
-
 export const getFilm = (id) => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films WHERE id=?";
@@ -155,21 +154,20 @@ export const getFilm = (id) => {
     db.get(sql, [id], (err, row) => {
       if (err) {
         return reject(err);
+      } else if (row === undefined) {
+        return resolve({ error: "Film not available, check the inserted id." });
       }
 
-      const films = rows.map(
-        (row) =>
-          new Film(
-            row.id,
-            row.title,
-            row.isFavorite,
-            row.watchDate,
-            row.rating,
-            row.userId
-          )
+      return resolve(
+        new Film(
+          row.id,
+          row.title,
+          row.isFavorite,
+          row.watchDate,
+          row.rating,
+          row.userId
+        )
       );
-
-      return resolve(films);
     });
   });
 };

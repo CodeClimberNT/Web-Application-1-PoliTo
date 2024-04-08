@@ -20,6 +20,9 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // ROUTES
+/****************/
+/*     GET      */
+/****************/
 
 // get all films
 app.get("/api/films", (request, response) => {
@@ -62,13 +65,32 @@ app.get("/api/films/not-watched", (request, response) => {
 // from id
 app.get("/api/films/:id", async (req, res) => {
   try {
-    getFilm(req.params.id)
-    .then((films) => res.json(films))
-    .catch((err)=> res.status(404).json(err));
+    const film = await getFilm(req.params.id);
+    if (film.error) res.status(404).json(film);
+    else res.json(film);
   } catch {
     res.status(500).end();
   }
 });
+
+/****************/
+/*     POST     */
+/****************/
+app.post("/api/films", [check("title").notEmpty()], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(422).json({ errors: errors.array() });
+
+  const newFilm = req.body;
+  try {
+    const id = await addFilm(newFilm);
+    
+  } catch (e) {}
+});
+
+/****************/
+/*     PUT      */
+/****************/
 
 // start server
 app.listen(port, () => {
