@@ -10,7 +10,7 @@ const db = new sqlite.Database("films.db", (err) => {
 });
 
 // get all the films
-export const listFilms = () => {
+export const getFilms = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films";
     db.all(sql, (err, rows) => {
@@ -36,7 +36,7 @@ export const listFilms = () => {
 };
 
 // get fav films
-export const listFavFilms = () => {
+export const getFavFilms = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films WHERE isFavorite=1";
     db.all(sql, (err, rows) => {
@@ -62,7 +62,7 @@ export const listFavFilms = () => {
 };
 
 // get bests films
-export const listBestFilms = () => {
+export const getBestFilms = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films WHERE rating=5";
     db.all(sql, (err, rows) => {
@@ -88,7 +88,7 @@ export const listBestFilms = () => {
 };
 
 // get watched last month
-export const listWatchedLastMonth = () => {
+export const getWatchedLastMonth = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films WHERE watchDate >= ?";
 
@@ -121,7 +121,7 @@ export const listWatchedLastMonth = () => {
 };
 
 // get watched last month
-export const listNotWatched = () => {
+export const getNotWatched = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM films WHERE watchDate IS NULL";
 
@@ -174,35 +174,55 @@ export const getFilm = (id) => {
 
 export const addFilm = (film) => {
   return new Promise((resolve, reject) => {
-    if (!film) {
-      return reject("Argument is not a Film object!");
-    }
     const sql =
-      "INSERT INTO films (title, isFavorite, watchDate, rating, userId) VALUES (?, ?, ?, ?, ?)";
+      "INSERT INTO films (title, isFavorite, rating, watchDate, userId) VALUES (?, ?, ?, DATE(?), ?)";
 
     db.run(
       sql,
       [
         film.title,
         film.isFavorite ? 1 : 0,
-        film.watchDate.format("YYYY-MM-DD"),
         film.rating,
+        film.watchDate,
         film.userId,
       ],
       function (err) {
         if (err) {
-          return reject(`Error Inserting Film: ${err}`);
+          return reject(err);
         }
-
-        return resolve(
-          `Successfully added film "${film.title}" with id: ${this.lastID}`
-        );
+        return resolve(this.lastID);
       }
     );
   });
 };
 
-export const removeFilmById = (id) => {
+export const updateFilm = (film) => {
+  return new Promise((resolve, reject) => {
+    const sql =
+      "UPDATE films SET title = ?, isFavorite = ?, rating = ?, watchDate = DATE(?), userId = ?  WHERE id = ?";
+
+    db.run(
+      sql,
+      [
+        film.title,
+        film.isFavorite ? 1 : 0,
+        film.rating,
+        film.watchDate,
+        film.userId,
+        film.id,
+      ],
+      function (err) {
+        if (err) {
+          console.error(err);
+          return reject(err);
+        }
+        return resolve(this.lastID);
+      }
+    );
+  });
+};
+
+export const deleteFilmById = (id) => {
   return new Promise((resolve, reject) => {
     if (typeof id !== "string" && typeof id !== "number") {
       return reject("Argument is not a Film object!");

@@ -3,12 +3,15 @@ import express from "express";
 import morgan from "morgan";
 import { check, validationResult } from "express-validator";
 import {
-  listFilms,
-  listFavFilms,
-  listBestFilms,
-  listWatchedLastMonth,
-  listNotWatched,
+  getFilms,
+  getFavFilms,
+  getBestFilms,
+  getWatchedLastMonth,
+  getNotWatched,
   getFilm,
+  addFilm,
+  updateFilm,
+  deleteFilmById,
 } from "./dao.mjs";
 
 // app definition
@@ -26,28 +29,28 @@ app.use(morgan("dev"));
 
 // get all films
 app.get("/api/films", (request, response) => {
-  listFilms()
+  getFilms()
     .then((films) => response.json(films))
     .catch(() => response.status(500).end());
 });
 
 // fav films
 app.get("/api/films/favorites", (request, response) => {
-  listFavFilms()
+  getFavFilms()
     .then((films) => response.json(films))
     .catch(() => response.status(500).end());
 });
 
 // best films
 app.get("/api/films/best", (request, response) => {
-  listBestFilms()
+  getBestFilms()
     .then((films) => response.json(films))
     .catch(() => response.status(500).end());
 });
 
 // watched last month
 app.get("/api/films/last-month", (request, response) => {
-  listWatchedLastMonth()
+  getWatchedLastMonth()
     .then((films) => response.json(films))
     .catch((err) => {
       console.log(err);
@@ -57,7 +60,7 @@ app.get("/api/films/last-month", (request, response) => {
 
 // not watched
 app.get("/api/films/not-watched", (request, response) => {
-  listNotWatched()
+  getNotWatched()
     .then((films) => response.json(films))
     .catch(() => response.status(500).end());
 });
@@ -76,21 +79,84 @@ app.get("/api/films/:id", async (req, res) => {
 /****************/
 /*     POST     */
 /****************/
-app.post("/api/films", [check("title").notEmpty()], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(422).json({ errors: errors.array() });
+//add new film in the db
+app.post(
+  "/api/films",
+  [
+    check("title").notEmpty().isString(),
+    check("isFavorite").optional().isBoolean(),
+    check("rating").optional().isNumeric(),
+    check("watchDate")
+      .optional()
+      .isDate({ format: "YYYY-MM-DD", strictMode: true }),
+    check("userId").notEmpty().isNumeric(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(422).json({ errors: errors.array() });
 
-  const newFilm = req.body;
-  try {
-    const id = await addFilm(newFilm);
-    
-  } catch (e) {}
-});
+    const newFilm = req.body;
+
+    try {
+      const id = await addFilm(newFilm);
+      res.status(201).end();
+    } catch (e) {
+      console.error(`ERROR: ${e.message}`);
+      res.status(503).json({ error: "Error adding the film." });
+    }
+  }
+);
 
 /****************/
 /*     PUT      */
 /****************/
+// update film information
+app.put(
+  "/api/films/:id",
+  [
+    check("title").notEmpty().isString(),
+    check("isFavorite").isBoolean(),
+    check("rating").isNumeric(),
+    check("watchDate").isDate({ format: "YYYY-MM-DD", strictMode: true }),
+    check("userId").notEmpty().isNumeric(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    const filmToUpdate = req.body;
+    filmToUpdate.id = req.params.id;
+
+    try {
+      await updateFilm(filmToUpdate);
+      res.status(200).end();
+    } catch {
+      res
+        .status(503)
+        .json({ error: `Impossible to update film #${req.params.id}.` });
+    }
+  }
+);
+
+/****************/
+/*   DELETE     */
+/****************/
+// remove film
+app.delete("/api/films/:id", async (req, res) => {
+  const filmId = req.params.id;
+
+  try {
+    const removedFilm = await deleteFilmById(filmId);
+    res.status(200).json(removedFilm);
+  } catch {
+    res
+      .status(503)
+      .json({ error: `Impossible to remove film with id #${filmId}.` });
+  }
+});
 
 // start server
 app.listen(port, () => {

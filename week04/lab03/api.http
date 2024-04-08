@@ -1,0 +1,79 @@
+#####################
+#                   #
+#       GET         #
+#                   #
+#####################
+### all films
+GET http://localhost:3001/api/films
+
+### favorite films
+GET http://localhost:3001/api/films/favorites
+
+### best films
+GET http://localhost:3001/api/films/best
+
+### watched in the last month
+GET http://localhost:3001/api/films/last-month
+
+### not watched
+GET http://localhost:3001/api/films/not-watched
+
+### get from id
+GET http://localhost:3001/api/films/1
+
+### get from wrong id to test
+GET http://localhost:3001/api/films/25
+
+#####################
+#                   #
+#       POST        #
+#                   #
+#####################
+### adding film with all features
+POST http://localhost:3001/api/films
+content-type: application/json
+
+{
+  "title": "Le avventure di Gullivers",
+  "isFavorite" : true,
+  "watchDate" : "2024-04-08",
+  "rating" : 4,
+  "userId" : 1
+}
+
+
+### adding film only with title and user
+POST http://localhost:3001/api/films
+content-type: application/json
+
+{
+  "title": "Shrek 2",
+  "userId" : 1
+}
+
+
+
+#####################
+#                   #
+#       PUT        #
+#                   #
+#####################
+
+### updating film
+PUT http://localhost:3001/api/films/37
+content-type: application/json
+
+{
+  "title": "Le avventure di Gullivers",
+  "isFavorite" : true,
+  "watchDate" : "2024-04-08",
+  "rating" : 4,
+  "userId" : 1
+}
+
+#####################
+#                   #
+#      DELETE       #
+#                   #
+#####################
+DELETE http://localhost:3001/api/films/38
