@@ -85,7 +85,7 @@ app.post(
   [
     check("title").notEmpty().isString(),
     check("isFavorite").optional().isBoolean(),
-    check("rating").optional().isNumeric(),
+    check("rating").optional().isIn([0, 1, 2, 3, 4, 5]),
     check("watchDate")
       .optional()
       .isDate({ format: "YYYY-MM-DD", strictMode: true }),
@@ -117,7 +117,7 @@ app.put(
   [
     check("title").notEmpty().isString(),
     check("isFavorite").isBoolean(),
-    check("rating").isNumeric(),
+    check("rating").isIn([0, 1, 2, 3, 4, 5]),
     check("watchDate").isDate({ format: "YYYY-MM-DD", strictMode: true }),
     check("userId").notEmpty().isNumeric(),
   ],
