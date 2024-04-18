@@ -19,3 +19,8 @@ Please, note that after reloading the page, all the answers will appear again wi
 ## Delete an answer
 
 Create a function to delete a specific answer. As before, define an `EventListener` in the code for each "delete" button, and keep in mind that this change won't be persistent.
+
+## Sort the answers by score
+
+Now, sort the table content by clicking on the "Score" header. For simplicity, a first click will sort the table from the highest to the lowest score value and a second click from the lowest to the highest.
+Even in this case, implement this job using an `EventListener`. You can associate the listener to the `<td>` of the interested row or you can assign it to a new inserted icon.
