@@ -2,81 +2,162 @@
 
 function createFilmRow(film) {
 	const li = document.createElement("li");
-  li.classList.add("list-group-item");
+	li.classList.add("list-group-item");
 	li.setAttribute("id", `film-${film.id}-wrapper`);
 
-  const div = document.createElement("div");
+	const div = document.createElement("div");
 	div.setAttribute("id", `film-${film.id}`);
-  li.appendChild(div);
-
+	div.classList.add("row", "gy-2");
+	li.appendChild(div);
 
 	const divTitle = document.createElement("div");
+	divTitle.classList.add(
+		"col-6",
+		"col-xl-3",
+		"favorite-title",
+		"d-flex",
+		"gap-2",
+		"align-items-center"
+	);
 	divTitle.innerText = film.title;
 	div.appendChild(divTitle);
 
-	// TODO stars instead of text
-	const divFavorite = document.createElement("div");
-	divFavorite.innerText = film.favorite;
-	div.appendChild(divFavorite);
+	// actions for small screen
+	const divActionsSmallScreenWrapper = document.createElement("div");
+	divActionsSmallScreenWrapper.classList.add("d-xl-none", "actions");
 
-	const divWatchDate = document.createElement("div");
-  let watchDate = film.watchDate;
-	divWatchDate.innerText = watchDate == null ? "" : watchDate.format("YYYY-MM-DD");
-  div.appendChild(divWatchDate);
+	const iSmallScreenEdit = document.createElement("i");
+	iSmallScreenEdit.classList.add("bi", "bi-pencil");
+	divActionsSmallScreenWrapper.appendChild(iSmallScreenEdit);
 
-	// TODO Favorite in number of stars
-	const divRating = document.createElement("div");
-	divRating.innerText = film.rating;
-	div.appendChild(divRating);
+	const iSmallScreenDelete = document.createElement("i");
+	iSmallScreenDelete.classList.add("bi", "bi-trash");
+	divActionsSmallScreenWrapper.appendChild(iSmallScreenDelete);
 
-  const divActions = document.createElement("div");
-	const buttonEdit = document.createElement("button");
-	buttonEdit.classList.add("btn", "btn-primary", "mx-1");
-	buttonEdit.innerHTML = "<i class='bi bi-pencil-square'></i>";
-	divActions.appendChild(buttonEdit);
-
-	const buttonDelete = document.createElement("button");
-	buttonDelete.classList.add("btn", "btn-danger");
-	buttonDelete.innerHTML = "<i class='bi bi-trash'></i>";
-	divActions.appendChild(buttonDelete);
-
-	buttonDelete.addEventListener("click", (event) => {
-		console.log(event.currentTarget.parentElement.parentElement.id);
+	iSmallScreenDelete.addEventListener("click", (event) => {
+		console.log(
+			event.currentTarget.parentElement.parentElement.parentElement
+				.parentElement.id
+		);
 		li.remove();
 	});
-	div.appendChild(divActions);
 
+	divTitle.appendChild(divActionsSmallScreenWrapper);
+
+	// Div wrapper for favorite button
+	const divFavoriteWrapper = document.createElement("div");
+	divFavoriteWrapper.classList.add(
+		"col-6",
+		"col-xl-3",
+		"text-end",
+		"text-xl-center"
+	);
+
+	const spanCustomControlFavorite = document.createElement("span");
+	spanCustomControlFavorite.classList.add("custom-control", "custom-checkbox");
+	divFavoriteWrapper.appendChild(spanCustomControlFavorite);
+
+	const inputFavorite = document.createElement("input");
+	inputFavorite.setAttribute("type", "checkbox");
+	inputFavorite.classList.add("custom-control-input");
+	inputFavorite.setAttribute("id", `films[${film.id}][favorite]`);
+	if (film.favorite) {
+		inputFavorite.setAttribute("checked", "checked");
+	}
+	divFavoriteWrapper.appendChild(inputFavorite);
+
+	spanCustomControlFavorite.appendChild(inputFavorite);
+
+	div.appendChild(divFavoriteWrapper);
+	// Watch Date
+
+	const divWatchDate = document.createElement("div");
+	divWatchDate.classList.add("col-4", "col-xl-3", "text-xl-center");
+	let watchDate = film.watchDate;
+	divWatchDate.innerText =
+		watchDate == null ? "" : watchDate.format("YYYY-MM-DD");
+	div.appendChild(divWatchDate);
+
+	// Container for stars and Buttons
+	const divActionContainer = document.createElement("div");
+	divActionContainer.classList.add(
+		"actions-container",
+		"col-8",
+		"col-xl-3",
+		"text-end"
+	);
+
+	// Stars
+	const divRating = document.createElement("div");
+	for (let i = 0; i < film.rating; i++) {
+		const star = document.createElement("i");
+		star.classList.add("bi", "bi-star-fill");
+		divRating.appendChild(star);
+	}
+	for (let i = 0; i < 5 - film.rating; i++) {
+		const star = document.createElement("i");
+		star.classList.add("bi", "bi-star");
+		divRating.appendChild(star);
+	}
+	divActionContainer.appendChild(divRating);
+
+	// Buttons
+	const divActions = document.createElement("div");
+	divActions.classList.add("d-none", "d-xl-flex", "actions");
+
+	// Edit film
+	const iEdit = document.createElement("i");
+	iEdit.classList.add("bi", "bi-pencil");
+	divActions.appendChild(iEdit);
+
+	// Remove Film
+	const iDelete = document.createElement("i");
+	iDelete.classList.add("bi", "bi-trash");
+	divActions.appendChild(iDelete);
+
+	iDelete.addEventListener("click", (event) => {
+		console.log(
+			event.currentTarget.parentElement.parentElement.parentElement
+				.parentElement.id
+		);
+		li.remove();
+	});
+
+	divActionContainer.appendChild(divActions);
+
+	div.appendChild(divActionContainer);
 	return li;
 }
 
 function fillFilmsList(films) {
 	const filmList = document.getElementById("films-list");
 	// console.log(filmList);
-	/*
-	 * After adding sorting operation, is necessary to clean the table before inserting ordered answers.
-	 * This piece of code is useless when the application is started for the first time.
-	 */
-
-	/* Very simple approach used during lecture to clean the table; remove all the HTML content. It deletes also the row dedicated to inserting a new answer. */
-	// answerTable.innerHTML = "";
 
 	/* Cleaning the list for the sorting operation; inserting only the "new-answer-row" */
 	filmList.innerHTML = "";
 
 	for (const film of films) {
-		const trAnswer = createFilmRow(film);
-		filmList.prepend(trAnswer);
+		const liFilm = createFilmRow(film);
+		filmList.prepend(liFilm);
 	}
 }
 
-function addSortListener(filmList) {}
+function addFilterListener(films) {
+	const filtersContainerFilms = document.querySelector("#films-filters div ul");
+	console.log(filtersContainerFilms);
+	// add event listener to each filter
+	// const {allFilter, favoriteFilter, bestRatedFilter, seenLastMonthFilter, unseenFilter} = filtersContainerFilms.querySelectorAll("li");
+	const filters = filtersContainerFilms.querySelectorAll("li");
+	console.log(filters)
+	
+}
 
 document.addEventListener("DOMContentLoaded", function () {
 	const filmLibrary = new FilmLibrary();
 	filmLibrary.init();
 
 	// console.log(filmLibrary.films);
-  
-	// fillFilmsList(filmLibrary.films);
-	addSortListener(filmLibrary.films);
+
+	fillFilmsList(filmLibrary.films);
+	addFilterListener(filmLibrary.films);
 });
