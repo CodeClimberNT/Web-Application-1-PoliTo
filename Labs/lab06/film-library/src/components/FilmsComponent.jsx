@@ -1,19 +1,22 @@
 /* eslint-disable react/prop-types */
-import { Col, Row, Table, Button } from "react-bootstrap";
+import { Col, Row, Table, Button, Container } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { useState } from "react";
 
 function Films(props) {
 	return (
-		<>
+		<Container fluid>
 			<Row>
-				<Col as="h2">{props.filters.name}</Col>
+				<Col as="h2" className="mb-0">
+					{props.filters.name}
+				</Col>
 			</Row>
 			<Row>
-				<Col lg={10} className="mx-auto">
+				<Col>
 					<FilmTable films={props.films}></FilmTable>
 				</Col>
 			</Row>
-		</>
+		</Container>
 	);
 }
 
@@ -48,27 +51,66 @@ function FilmRow(props) {
 }
 
 function FilmData(props) {
-	let watchDate = props.film.watchDate && props.film.watchDate.format("MMM D, YYYY");
+	const watchDate =
+		props.film.watchDate && props.film.watchDate.format("MMM D, YYYY");
 
 	return (
 		<>
 			<td>{props.film.title}</td>
-			<td>{props.film.favorite ? "Yes" : "No"}</td>
+			<td>
+				<FilmFavorite favorite={props.film.favorite} />
+			</td>
 			<td>{watchDate}</td>
-			<td>{props.film.rating}</td>
+
+			<td>
+				<FilmRating rating={props.film.rating} />
+			</td>
 		</>
 	);
 }
 
+function FilmFavorite(props) {
+	const [checked, setChecked] = useState(props.favorite);
+	// return <td>{props.favorite ? "Yes" : "No"}</td>;
+	return (
+		<label>
+			<input
+				type="checkbox"
+				checked={checked}
+				onChange={(e) => setChecked(e.currentTarget.checked)}
+			/>{" "}
+			Favorite
+		</label>
+	);
+}
+
+function FilmRating(props) {
+	// return props.rating;
+	const maxRating = 5;
+	for (let i = 0; i < maxRating; i++) {
+		return (
+			<>
+				{Array(props.rating)
+					.fill()
+					.map((_, index) => (
+						<i key={index} className="bi bi-star-fill"></i>
+					))}
+				{Array(5 - props.rating)
+					.fill()
+					.map((_, index) => (
+						<i key={index} className="bi bi-star"></i>
+					))}
+			</>
+		);
+	}
+}
+
 function FilmAction(props) {
+	console.debug("FilmAction", props);
 	return (
 		<td>
-			<Button variant="warning" className="mx-1">
-				<i className="bi bi-pencil"></i>
-			</Button>
-			<Button variant="danger">
-				<i className="bi bi-trash"></i>
-			</Button>
+			<Button variant="link" className="bi bi-pencil mx-1" />
+			<Button variant="link" className="bi bi-trash" />
 		</td>
 	);
 }

@@ -17,12 +17,12 @@ function App() {
 	return (
 		<>
 			<NavHeader />
-			<Container fluid className="mt-3">
+			<Container fluid >
 				<Row>
-					<Col md={2} bg="dark">
+					<Col md={3} className="bg-light pt-4">
 						<Filters />
 					</Col>
-					<Col>
+					<Col md={9} className="pt-3">
 						<Films films={films} filters={filters} />
 					</Col>
 				</Row>
