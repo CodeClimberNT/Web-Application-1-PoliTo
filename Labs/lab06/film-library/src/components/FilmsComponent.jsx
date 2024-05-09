@@ -34,7 +34,7 @@ function FilmTable(props) {
 			</thead>
 			<tbody>
 				{props.films.map((film) => (
-					<FilmRow film={film} key={film.id}></FilmRow>
+					<FilmRow film={film} key={film.id}/>
 				))}
 			</tbody>
 		</Table>
@@ -44,8 +44,8 @@ function FilmTable(props) {
 function FilmRow(props) {
 	return (
 		<tr>
-			<FilmData film={props.film}></FilmData>
-			<FilmAction filmId={props.film.id}></FilmAction>
+			<FilmData film={props.film} />
+			<FilmAction filmId={props.film.id} />
 		</tr>
 	);
 }
@@ -93,12 +93,12 @@ function FilmRating(props) {
 				{Array(props.rating)
 					.fill()
 					.map((_, index) => (
-						<i key={index} className="bi bi-star-fill"></i>
+						<i key={index} className="bi bi-star-fill text-warning"></i>
 					))}
 				{Array(5 - props.rating)
 					.fill()
 					.map((_, index) => (
-						<i key={index} className="bi bi-star"></i>
+						<i key={index} className="bi bi-star text-warning"></i>
 					))}
 			</>
 		);
@@ -109,8 +109,8 @@ function FilmAction(props) {
 	console.debug("FilmAction", props);
 	return (
 		<td>
-			<Button variant="link" className="bi bi-pencil mx-1" />
-			<Button variant="link" className="bi bi-trash" />
+			<Button variant="link" className="bi bi-pencil mx-1 text-dark" />
+			<Button variant="link" className="bi bi-trash text-dark" />
 		</td>
 	);
 }
