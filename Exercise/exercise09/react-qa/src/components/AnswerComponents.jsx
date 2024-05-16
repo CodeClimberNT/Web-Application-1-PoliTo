@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Row, Col, Table, Button } from "react-bootstrap";
 import AnswerForm from './AnswerForm';

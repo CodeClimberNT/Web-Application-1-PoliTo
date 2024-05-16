@@ -5,7 +5,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./App.css";
-import { INITIAL_FILMS } from "./films.mjs";
+import { Film, INITIAL_FILMS } from "./films.mjs";
 
 import dayjs from "dayjs";
 
@@ -58,10 +58,40 @@ function App() {
 	// This state contains the active filter
 	const [activeFilter, setActiveFilter] = useState("filter-all");
 
-	// This is not optimal - better ways will be introduced in the upcoming labs
-	const visibleFilms = INITIAL_FILMS.filter(
-		filters[activeFilter].filterFunction
-	);
+	const [films, setFilms] = useState(INITIAL_FILMS);
+
+	const addFilm = (film) => {
+		setFilms((oldFilms) => {
+			const newId = Math.max(...oldFilms.map((f) => f.id)) + 1;
+			const newFilm = new Film(
+				newId,
+				film.title,
+				film.favorite,
+				film.watchDate,
+				film.rating
+			);
+			return [...oldFilms, newFilm];
+		});
+	};
+
+	const updateFilm = (film) => {
+		setFilms((oldFilms) => {
+			return oldFilms.map((f) => {
+				if (f.id === film.id) {
+					return new Film(
+						f.id,
+						film.title,
+						film.favorite,
+						film.watchDate,
+						film.rating
+					);
+				} else {
+					return f;
+				}
+			});
+		});
+	};
+
 
 	// This state controls the expansion of the sidebar (on small breakpoints only)
 	const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -94,7 +124,7 @@ function App() {
 						<h1>
 							<span id="filter-title">{filters[activeFilter].label}</span> films
 						</h1>
-						<FilmList films={visibleFilms} />
+						<FilmList films={films} addFilm={addFilm} updateFilm={updateFilm} />
 					</Col>
 				</Row>
 				<Button variant="primary" className="rounded-circle fixed-right-bottom">

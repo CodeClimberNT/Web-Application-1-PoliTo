@@ -53,7 +53,8 @@ i.bi {
   cursor: pointer;
 }
 
-#films-list i.bi.bi-star-fill, #films-list i.bi.bi-star:hover {
+#films-list i.bi.bi-star-fill,
+#films-list i.bi.bi-star:hover {
   color: #f0ad4e;
 }
 
