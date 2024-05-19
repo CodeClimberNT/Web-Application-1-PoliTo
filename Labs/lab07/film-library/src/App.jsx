@@ -2,11 +2,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import NavHeader from "./components/NavHeader";
 import Films from "./components/FilmsComponent";
 import Filters from "./components/FiltersComponent";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row, Button } from "react-bootstrap";
 import { FilmLibrary } from "./FilmModels.mjs";
-import AddFilm from "./components/AddFilmComponent";
 import dayjs from "dayjs";
 import { useState } from "react";
+import "./App.css";
+
+const filmLibrary = new FilmLibrary();
+filmLibrary.init();
 
 function App() {
 	const filters = [
@@ -34,12 +37,38 @@ function App() {
 		},
 	];
 
-	const filmLibrary = new FilmLibrary();
-	filmLibrary.init();
 	const [activeFilter, setActiveFilter] = useState(filters[0]);
 	const [films, setFilms] = useState(filmLibrary.list);
 
-	console.log(activeFilter);
+	const [mode, setMode] = useState("view");
+	const [editableFilm, setEditableFilm] = useState();
+
+	const handleEdit = (film) => {
+		setEditableFilm(film);
+		setMode("edit");
+	};
+
+	const updateFilm = (film) => {
+		setFilms((oldFilms) => {
+			const newFilms = oldFilms.map((f) => {
+				if (f.id === film.id) {
+					return film;
+				}
+				return f;
+			});
+			return newFilms;
+		});
+	};
+
+	const addFilm = (film) => {
+		setFilms((oldFilms) => {
+			const newId = Math.max(...oldFilms.map((f) => f.id)) + 1;
+			const newFilm = { ...film, id: newId };
+			return [...oldFilms, newFilm];
+		});
+	};
+
+	console.debug(activeFilter);
 
 	const applyFilter = (filter) => {
 		setFilms(filmLibrary.list.filter(filter.filterAction));
@@ -60,7 +89,40 @@ function App() {
 						</Col>
 					</Col>
 				</Row>
-				<AddFilm />
+				{mode === "view" && (
+					<Button
+						variant="primary"
+						className="rounded-circle fixed-right-bottom"
+						onClick={() => {
+							setMode("add");
+						}}
+					>
+						<i className="bi bi-plus"></i>
+					</Button>
+				)}
+				{mode === "add" && (
+					<FilmForm
+						addFilm={(film) => {
+							addFilm(film);
+							setMode("view");
+						}}
+						cancel={() => setMode("view")}
+						mode={mode}
+					/>
+				)}
+
+				{mode === "edit" && (
+					<FilmForm
+						key={editableFilm.id}
+						film={editableFilm}
+						updateFilm={(film) => {
+							updateFilm(film);
+							setMode("view");
+						}}
+						cancel={() => setMode("view")}
+						mode={mode}
+					/>
+				)}
 			</Container>
 		</div>
 	);
