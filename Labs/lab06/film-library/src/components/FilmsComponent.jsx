@@ -8,7 +8,7 @@ function Films(props) {
 		<Container fluid>
 			<Row>
 				<Col as="h2" className="mb-0">
-					{props.filters.name}
+					{props.filterName}
 				</Col>
 			</Row>
 			<Row>
@@ -23,18 +23,17 @@ function Films(props) {
 function FilmTable(props) {
 	return (
 		<Table striped>
-			<thead>
+			{/* <thead>
 				<tr>
 					<th>Title</th>
 					<th>Favorite</th>
 					<th>WatchDate</th>
-					<th>Rating</th>
 					<th>Actions</th>
 				</tr>
-			</thead>
+			</thead> */}
 			<tbody>
 				{props.films.map((film) => (
-					<FilmRow film={film} key={film.id}/>
+					<FilmRow film={film} key={film.id} />
 				))}
 			</tbody>
 		</Table>
@@ -45,7 +44,7 @@ function FilmRow(props) {
 	return (
 		<tr>
 			<FilmData film={props.film} />
-			<FilmAction filmId={props.film.id} />
+			<FilmAction film={props.film} />
 		</tr>
 	);
 }
@@ -61,17 +60,12 @@ function FilmData(props) {
 				<FilmFavorite favorite={props.film.favorite} />
 			</td>
 			<td>{watchDate}</td>
-
-			<td>
-				<FilmRating rating={props.film.rating} />
-			</td>
 		</>
 	);
 }
 
 function FilmFavorite(props) {
 	const [checked, setChecked] = useState(props.favorite);
-	// return <td>{props.favorite ? "Yes" : "No"}</td>;
 	return (
 		<label>
 			<input
@@ -109,6 +103,8 @@ function FilmAction(props) {
 	console.debug("FilmAction", props);
 	return (
 		<td>
+			<FilmRating rating={props.film.rating} />
+
 			<Button variant="link" className="bi bi-pencil mx-1 text-dark" />
 			<Button variant="link" className="bi bi-trash text-dark" />
 		</td>
